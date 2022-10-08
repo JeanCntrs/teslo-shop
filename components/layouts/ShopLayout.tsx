@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { Navbar } from "../ui";
+import { Navbar, SideMenu } from "../ui";
 
 interface ShopLayoutProps {
     title: string;
@@ -24,6 +24,8 @@ export const ShopLayout: React.FC<ShopLayoutProps> = ({ children, title, pageDes
             <nav>
                 <Navbar />
             </nav>
+
+            <SideMenu />
 
             <main style={{
                 margin: '80px auto',
