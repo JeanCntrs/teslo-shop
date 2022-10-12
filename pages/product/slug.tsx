@@ -1,6 +1,7 @@
 import { Box, Button, Chip, Grid, Typography } from "@mui/material";
 import { ShopLayout } from "../../components/layouts";
 import { ProductSlideshow } from "../../components/products";
+import { ItemCounter } from "../../components/ui";
 import { initialData } from "../../database/products";
 
 const product = initialData.products[0];
@@ -23,6 +24,7 @@ const ProductPage: React.FC<ProductPageProps> = () => {
 
                         <Box sx={{ my: 2 }}>
                             <Typography variant='subtitle2'>Quantity</Typography>
+                            <ItemCounter />
                         </Box>
 
                         <Button color='secondary' className='circular-btn'>

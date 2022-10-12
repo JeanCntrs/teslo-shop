@@ -1,3 +1,3 @@
 export * from './ProductCard';
 export * from './ProductList';
-export * from './productSlideshow';
+export * from './ProductSlideshow';
