@@ -1,4 +1,5 @@
 import { Box, Button, Chip, Grid, Typography } from "@mui/material";
+import { NextPage } from "next";
 import { ShopLayout } from "../../components/layouts";
 import { ProductSlideshow, SizeSelector } from "../../components/products";
 import { ItemCounter } from "../../components/ui";
@@ -6,11 +7,7 @@ import { initialData } from "../../database/products";
 
 const product = initialData.products[0];
 
-interface ProductPageProps {
-
-}
-
-const ProductPage: React.FC<ProductPageProps> = () => {
+const ProductPage: NextPage = () => {
     return (
         <ShopLayout title={product.title} pageDescription={product.description}>
             <Grid container spacing={3}>
