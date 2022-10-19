@@ -9,6 +9,7 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     const [isHovered, setIsHovered] = useState(false);
+    const [isImageLoaded, setIsImageLoaded] = useState(false);
 
     const productImage = useMemo(() => {
         return isHovered ? `products/${product.images[1]}` : `products/${product.images[0]}`
@@ -31,16 +32,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                 className='fadeIn'
                                 image={productImage}
                                 alt={product.title}
+                                onLoad={() => setIsImageLoaded(true)}
                             />
                         </CardActionArea>
                     </Link>
                 </NextLink>
             </Card>
 
-            <Box sx={{ mt: 1 }} className='fadein'>
-                <Typography fontWeight={700}>{product.title}</Typography>
-                <Typography fontWeight={500}>${product.price}</Typography>
-            </Box>
+            {
+                isImageLoaded &&
+                <Box sx={{ mt: 1 }} className='fadein'>
+                    <Typography fontWeight={700}>{product.title}</Typography>
+                    <Typography fontWeight={500}>${product.price}</Typography>
+                </Box>
+            }
+
         </Grid>
     );
 }
