@@ -11,7 +11,6 @@ const mongoConnection = {
 }
 
 export const connect = async() => {
-
     if ( mongoConnection.isConnected ) {
         console.log('Ya estabamos conectados');
         return;
