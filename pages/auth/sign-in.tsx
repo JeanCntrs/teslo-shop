@@ -30,7 +30,7 @@ const SignInPage: NextPage = () => {
                     <Grid item xs={12} display='flex' justifyContent='center'>
                         <NextLink href='/auth/sign-up' passHref>
                             <Link underline='always'>
-                                Don't have an account?
+                                Don&apos;t have an account?
                             </Link>
                         </NextLink>
                     </Grid>
