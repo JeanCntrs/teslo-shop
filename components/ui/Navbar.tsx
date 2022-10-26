@@ -1,13 +1,22 @@
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import { useContext } from 'react';
-import { AppBar, Badge, Box, Button, IconButton, Link, Toolbar, Typography } from "@mui/material";
-import { SearchOutlined, ShoppingCartOutlined } from '@mui/icons-material';
+import { useContext, useState } from 'react';
+import { AppBar, Badge, Box, Button, IconButton, Input, InputAdornment, Link, Toolbar, Typography } from "@mui/material";
+import { ClearOutlined, SearchOutlined, ShoppingCartOutlined } from '@mui/icons-material';
 import { UiContext } from '../../context';
 
 export const Navbar: React.FC = () => {
-    const { asPath } = useRouter();
-    const { changeSidemenu } = useContext(UiContext)
+    const { asPath, push } = useRouter();
+    const { changeSidemenu } = useContext(UiContext);
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isSearchVisible, setIsSearchVisible] = useState(false);
+
+    const handleSearchTerm = () => {
+        if (searchTerm.trim().length === 0) return;
+
+        push(`/search/${searchTerm}`);
+    }
 
     return (
         <AppBar>
@@ -21,7 +30,7 @@ export const Navbar: React.FC = () => {
 
                 <Box flex={1} />
 
-                <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                <Box sx={{ display: isSearchVisible ? 'none' : { xs: 'none', sm: 'block' } }} className='fadeIn'>
                     <NextLink href='/category/men' passHref>
                         <Link>
                             <Button color={asPath === '/category/men' ? 'primary' : 'info'}>Men</Button>
@@ -41,7 +50,42 @@ export const Navbar: React.FC = () => {
 
                 <Box flex={1} />
 
-                <IconButton>
+                {
+                    isSearchVisible
+                        ?
+                        <Input
+                            sx={{ display: { xs: 'none', sm: 'flex' } }}
+                            autoFocus
+                            className='fadeIn'
+                            value={searchTerm}
+                            onChange={event => setSearchTerm(event.target.value)}
+                            onKeyUp={event => event.key === 'Enter' ? handleSearchTerm() : null}
+                            type='text'
+                            placeholder="Buscar..."
+                            endAdornment={
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={() => setIsSearchVisible(false)}
+                                    >
+                                        <ClearOutlined />
+                                    </IconButton>
+                                </InputAdornment>
+                            }
+                        />
+                        :
+                        <IconButton
+                            className='fadeIn'
+                            sx={{ display: { xs: 'none', sm: 'flex' } }}
+                            onClick={() => setIsSearchVisible(true)}
+                        >
+                            <SearchOutlined />
+                        </IconButton>
+                }
+
+                <IconButton
+                    sx={{ display: { xs: 'flex', sm: 'none' } }}
+                    onClick={changeSidemenu}
+                >
                     <SearchOutlined />
                 </IconButton>
 

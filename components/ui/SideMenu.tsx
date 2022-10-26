@@ -32,6 +32,7 @@ export const SideMenu: React.FC = () => {
                 <List>
                     <ListItem>
                         <Input
+                            autoFocus
                             value={searchTerm}
                             onChange={event => setSearchTerm(event.target.value)}
                             onKeyUp={event => event.key === 'Enter' ? handleSearchTerm() : null}
