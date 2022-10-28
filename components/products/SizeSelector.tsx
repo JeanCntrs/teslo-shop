@@ -4,9 +4,12 @@ import { ISize } from '../../interfaces/products';
 interface SizeSelectorProps {
     selectedSize?: ISize;
     sizes: ISize[];
+
+    // Method
+    handleSelectedSize: (size: ISize) => void;
 }
 
-export const SizeSelector: React.FC<SizeSelectorProps> = ({ selectedSize, sizes }) => {
+export const SizeSelector: React.FC<SizeSelectorProps> = ({ selectedSize, sizes, handleSelectedSize }) => {
     return (
         <Box>
             {
@@ -15,6 +18,7 @@ export const SizeSelector: React.FC<SizeSelectorProps> = ({ selectedSize, sizes 
                         key={size}
                         size='small'
                         color={selectedSize === size ? 'primary' : 'info'}
+                        onClick={() => handleSelectedSize(size)}
                     >
                         {size}
                     </Button>
