@@ -5,21 +5,27 @@ import { Box } from '@mui/system';
 import { ItemCounter } from '../ui';
 import { useContext } from 'react';
 import { CartContext } from '../../context/cart/CartContext';
+import { ICartProduct } from '../../interfaces/cart';
 
 interface CartListProps {
     editable?: boolean;
 }
 
 export const CartList: React.FC<CartListProps> = ({ editable = false }) => {
-    const { cart } = useContext(CartContext);
+    const { cart, updateCartQuantity } = useContext(CartContext);
+
+    const handleUpdateProductQuantity = (product: ICartProduct, newQuantityValue: number) => {
+        product.quantity = newQuantityValue;
+        updateCartQuantity(product);
+    }
 
     return (
         <>
             {
                 cart.map(product => (
-                    <Grid container spacing={2} key={product.slug} sx={{ mb: 1 }}>
+                    <Grid container spacing={2} key={product.slug + product.size} sx={{ mb: 1 }}>
                         <Grid item xs={3}>
-                            <NextLink href='/product/slug' passHref>
+                            <NextLink href={`/product/${product.slug}`} passHref>
                                 <Link>
                                     <CardActionArea>
                                         <CardMedia
@@ -34,7 +40,7 @@ export const CartList: React.FC<CartListProps> = ({ editable = false }) => {
                         <Grid item xs={7}>
                             <Box display='flex' flexDirection='column'>
                                 <Typography variant='body1'>{product.title}</Typography>
-                                <Typography variant='body1'>Talla: <strong>M</strong></Typography>
+                                <Typography variant='body1'>Talla: <strong>{product.size}</strong></Typography>
 
                                 {
                                     editable
@@ -42,7 +48,7 @@ export const CartList: React.FC<CartListProps> = ({ editable = false }) => {
                                         <ItemCounter
                                             currentValue={product.quantity}
                                             maxValue={10}
-                                            handleUpdateQuantity={() => { }} />
+                                            handleUpdateQuantity={(value) => handleUpdateProductQuantity(product, value)} />
                                         :
                                         <Typography variant='h5'>{product.quantity}{product.quantity > 1 ? 'productos' : 'producto'}</Typography>
                                 }
