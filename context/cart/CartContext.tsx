@@ -5,7 +5,7 @@ interface ContextProps {
     cart: ICartProduct[];
 
     // Methods
-    // changeSidemenu: () => void
+    addProductToCart: (product: ICartProduct) => void;
 }
 
 export const CartContext = createContext({} as ContextProps);
