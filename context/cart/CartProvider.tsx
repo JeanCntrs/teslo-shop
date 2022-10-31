@@ -9,10 +9,18 @@ interface ICartProviderProps {
 
 export interface ICartState {
     cart: ICartProduct[];
+    numberOfItems: number;
+    subTotal: number;
+    tax: number;
+    total: number;
 }
 
 const CART_INITIAL_STATE: ICartState = {
-    cart: []
+    cart: [],
+    numberOfItems: 0,
+    subTotal: 0,
+    tax: 0,
+    total: 0
 }
 
 export const CartProvider: React.FC<ICartProviderProps> = ({ children }) => {
@@ -29,7 +37,22 @@ export const CartProvider: React.FC<ICartProviderProps> = ({ children }) => {
 
 
     useEffect(() => {
-        Cookie.set('cart', JSON.stringify(state.cart))
+        Cookie.set('cart', JSON.stringify(state.cart));
+    }, [state.cart])
+
+    useEffect(() => {
+        const numberOfItems = state.cart.reduce((previous, current) => current.quantity + previous, 0);
+        const subTotal = state.cart.reduce((previous, current) => (current.quantity * current.price) + previous, 0);
+        const taxRate = Number(process.env.NEXT_PUBLIC_TAX_RATE || 0);
+
+        const orderSummary = {
+            numberOfItems,
+            subTotal,
+            tax: subTotal * taxRate,
+            total: subTotal * (taxRate + 1)
+        }
+
+        dispatch({ type: '[Cart] - Update Order Summary', payload: orderSummary });
     }, [state.cart])
 
     const addProductToCart = (product: ICartProduct) => {
@@ -56,13 +79,18 @@ export const CartProvider: React.FC<ICartProviderProps> = ({ children }) => {
         dispatch({ type: '[Cart] - Update Product Quantity', payload: product });
     }
 
+    const deleteCartProduct = (product: ICartProduct) => {
+        dispatch({ type: '[Cart] - Delete Product', payload: product });
+    }
+
     return (
         <CartContext.Provider value={{
             ...state,
 
             // Methods
             addProductToCart,
-            updateCartQuantity
+            updateCartQuantity,
+            deleteCartProduct
         }}
         >
             {children}
