@@ -7,7 +7,9 @@ import { useForm } from 'react-hook-form';
 import { validations } from '../../utils';
 import { tesloApi } from '../../api';
 import { ErrorOutline } from '@mui/icons-material';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { AuthContext } from '../../context';
+import { useRouter } from 'next/router';
 
 type FormData = {
     email: string,
@@ -15,21 +17,26 @@ type FormData = {
 };
 
 const SignInPage: NextPage = () => {
+    const router = useRouter();
+
+    const { loginUser } = useContext(AuthContext);
+
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
     const [showError, setShowError] = useState(false)
 
     const handleLoginUser = async ({ email, password }: FormData) => {
         setShowError(false);
-        try {
-            const { data } = await tesloApi.post('/users/login', { email, password });
-            const { token, user } = data;
-            console.log({ token, user });
-        } catch (error) {
+        
+        const isValidLogin = await loginUser(email, password);
+
+        if (!isValidLogin) {
             setShowError(true);
             setTimeout(() => setShowError(false), 5000);
-
-            console.log('Something went wrong')
+            return;
         }
+
+        // So that it does not return to the previous page we use replace
+        router.replace('/');
     }
 
     return (
