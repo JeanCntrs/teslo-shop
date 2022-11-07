@@ -4,10 +4,12 @@ import { Box } from '@mui/system';
 import { NextPage } from 'next';
 import { AuthLayout } from '../../components/layouts';
 import { useForm } from 'react-hook-form';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { validations } from '../../utils';
 import { tesloApi } from '../../api';
 import { ErrorOutline } from '@mui/icons-material';
+import { useRouter } from 'next/router';
+import { AuthContext } from '../../context';
 
 type FormData = {
     name: string;
@@ -16,22 +18,30 @@ type FormData = {
 }
 
 const SignUpPage: NextPage = () => {
+    const router = useRouter();
+
+    const { registerUser } = useContext(AuthContext);
+
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
-    const [showError, setShowError] = useState(false)
+    const [showError, setShowError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const handleSignUpForm = async ({ name, email, password }: FormData) => {
         setShowError(false);
-        try {
-            const { data } = await tesloApi.post('/users/register', { name, email, password });
-            const { token, user } = data;
-            console.log({ token, user });
-        } catch (error) {
-            setShowError(true);
-            setTimeout(() => setShowError(false), 5000);
 
-            console.log('Something went wrong')
+        const { hasError, message } = await registerUser(name, email, password);
+        
+        if (hasError) {
+            setShowError(true);
+            setErrorMessage(message!);
+            setTimeout(() => setShowError(false), 5000);
+            return;
         }
+
+        // So that it does not return to the previous page we use replace
+        router.replace('/');
     }
+
     return (
         <AuthLayout title='Sign Up'>
             <form onSubmit={handleSubmit(handleSignUpForm)} noValidate>
