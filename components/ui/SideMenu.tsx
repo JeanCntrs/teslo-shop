@@ -7,7 +7,7 @@ import { AuthContext, UiContext } from "../../context";
 export const SideMenu: React.FC = () => {
     const router = useRouter();
     const { isMenuOpen, changeSidemenu } = useContext(UiContext);
-    const { user, isLoggedIn } = useContext(AuthContext);
+    const { user, isLoggedIn, logout } = useContext(AuthContext);
 
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -21,6 +21,10 @@ export const SideMenu: React.FC = () => {
         changeSidemenu();
         router.push(url);
     }
+
+    // const HandleLogout = () => {
+    //     logout();
+    // }
 
     return (
         <Drawer
@@ -94,14 +98,14 @@ export const SideMenu: React.FC = () => {
                     {
                         isLoggedIn
                             ?
-                            <ListItem button>
+                            <ListItem button onClick={logout}>
                                 <ListItemIcon>
                                     <LoginOutlined />
                                 </ListItemIcon>
                                 <ListItemText primary={'Sign Out'} />
                             </ListItem>
                             :
-                            <ListItem button>
+                            <ListItem button onClick={() => navigateTo(`/auth/sign-in?p=${router.asPath}`)}>
                                 <ListItemIcon>
                                     <VpnKeyOutlined />
                                 </ListItemIcon>

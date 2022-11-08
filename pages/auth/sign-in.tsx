@@ -26,7 +26,7 @@ const SignInPage: NextPage = () => {
 
     const handleLoginUser = async ({ email, password }: FormData) => {
         setShowError(false);
-        
+
         const isValidLogin = await loginUser(email, password);
 
         if (!isValidLogin) {
@@ -36,7 +36,8 @@ const SignInPage: NextPage = () => {
         }
 
         // So that it does not return to the previous page we use replace
-        router.replace('/');
+        const destination = router.query.p?.toString() || '/';
+        router.replace(destination);
     }
 
     return (
@@ -100,7 +101,10 @@ const SignInPage: NextPage = () => {
                         </Grid>
 
                         <Grid item xs={12} display='flex' justifyContent='center'>
-                            <NextLink href='/auth/sign-up' passHref>
+                            <NextLink
+                                href={router.query.p ? `/auth/sign-up?p=${router.query.p}` : '/auth/sign-up'}
+                                passHref
+                            >
                                 <Link underline='always'>
                                     Don&apos;t have an account?
                                 </Link>

@@ -30,7 +30,7 @@ const SignUpPage: NextPage = () => {
         setShowError(false);
 
         const { hasError, message } = await registerUser(name, email, password);
-        
+
         if (hasError) {
             setShowError(true);
             setErrorMessage(message!);
@@ -39,7 +39,8 @@ const SignUpPage: NextPage = () => {
         }
 
         // So that it does not return to the previous page we use replace
-        router.replace('/');
+        const destination = router.query.p?.toString() || '/';
+        router.replace(destination);
     }
 
     return (
@@ -119,7 +120,10 @@ const SignUpPage: NextPage = () => {
                         </Grid>
 
                         <Grid item xs={12} display='flex' justifyContent='center'>
-                            <NextLink href='/auth/sign-in' passHref>
+                            <NextLink
+                                href={router.query.p ? `/auth/sign-in?p=${router.query.p}` : '/auth/sign-in'}
+                                passHref
+                            >
                                 <Link underline='always'>
                                     Already have an account?
                                 </Link>

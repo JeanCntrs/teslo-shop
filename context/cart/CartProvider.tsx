@@ -8,6 +8,7 @@ interface ICartProviderProps {
 }
 
 export interface ICartState {
+    isLoaded: boolean;
     cart: ICartProduct[];
     numberOfItems: number;
     subTotal: number;
@@ -16,6 +17,7 @@ export interface ICartState {
 }
 
 const CART_INITIAL_STATE: ICartState = {
+    isLoaded: false,
     cart: [],
     numberOfItems: 0,
     subTotal: 0,
