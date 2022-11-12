@@ -115,6 +115,19 @@ export const CartProvider: React.FC<ICartProviderProps> = ({ children }) => {
         dispatch({ type: '[Cart] - Delete Product', payload: product });
     }
 
+    const updateAddress = (address: IShippingAddress) => {
+        Cookies.set('firstName', address.firstName);
+        Cookies.set('lastName', address.lastName);
+        Cookies.set('address', address.address);
+        Cookies.set('address2', address.address2 || '');
+        Cookies.set('zip', address.zip);
+        Cookies.set('city', address.city);
+        Cookies.set('country', address.country);
+        Cookies.set('phone', address.phone);
+        
+        dispatch({ type: '[Cart] - Update Address', payload: address });
+    }
+
     return (
         <CartContext.Provider value={{
             ...state,
@@ -122,7 +135,8 @@ export const CartProvider: React.FC<ICartProviderProps> = ({ children }) => {
             // Methods
             addProductToCart,
             updateCartQuantity,
-            deleteCartProduct
+            deleteCartProduct,
+            updateAddress
         }}
         >
             {children}
