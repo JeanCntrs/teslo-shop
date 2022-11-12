@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from "react";
 import { ICartProduct } from "../../interfaces";
 import { CartContext, cartReducer } from "./";
-import Cookie from 'js-cookie';
+import Cookies from "js-cookie";
 
 interface ICartProviderProps {
     children?: React.ReactNode;
@@ -14,6 +14,18 @@ export interface ICartState {
     subTotal: number;
     tax: number;
     total: number;
+    shippingAddress?: IShippingAddress;
+}
+
+export interface IShippingAddress {
+    firstName: string;
+    lastName: string;
+    address: string;
+    address2?: string;
+    zip: string;
+    city: string;
+    country: string;
+    phone: string;
 }
 
 const CART_INITIAL_STATE: ICartState = {
@@ -22,7 +34,8 @@ const CART_INITIAL_STATE: ICartState = {
     numberOfItems: 0,
     subTotal: 0,
     tax: 0,
-    total: 0
+    total: 0,
+    shippingAddress: undefined
 }
 
 export const CartProvider: React.FC<ICartProviderProps> = ({ children }) => {
@@ -30,16 +43,33 @@ export const CartProvider: React.FC<ICartProviderProps> = ({ children }) => {
 
     useEffect(() => {
         try {
-            const cookieProducts = Cookie.get('cart') ? JSON.parse(Cookie.get('cart')!) : [];
+            const cookieProducts = Cookies.get('cart') ? JSON.parse(Cookies.get('cart')!) : [];
             dispatch({ type: '[Cart] - Load Cart From Cookies | Storage', payload: cookieProducts });
         } catch (error) {
             dispatch({ type: '[Cart] - Load Cart From Cookies | Storage', payload: [] });
         }
     }, [])
 
+    useEffect(() => {
+        if (Cookies.get('firstName')) {
+            const shippingAddress = {
+                firstName: Cookies.get('firstName') || '',
+                lastName: Cookies.get('lastName') || '',
+                address: Cookies.get('address') || '',
+                address2: Cookies.get('address2') || '',
+                zip: Cookies.get('zip') || '',
+                city: Cookies.get('city') || '',
+                country: Cookies.get('country') || '',
+                phone: Cookies.get('phone') || ''
+            }
+
+            dispatch({ type: '[Cart] - Load Address From Cookies', payload: shippingAddress });
+        }
+    }, [])
+
 
     useEffect(() => {
-        Cookie.set('cart', JSON.stringify(state.cart));
+        Cookies.set('cart', JSON.stringify(state.cart));
     }, [state.cart])
 
     useEffect(() => {
