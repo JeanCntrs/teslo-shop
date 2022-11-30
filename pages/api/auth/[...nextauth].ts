@@ -1,6 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import Credentials from "next-auth/providers/credentials";
+import { dbUsers } from "../../../database";
 
 export const authOptions: NextAuthOptions = {
   // Configure one or more authentication providers
@@ -12,8 +13,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password:', type: 'password', placeholder: 'password' }
       },
       async authorize(credentials) {
-        console.log('credentials', credentials)
-        return null;
+        return await dbUsers.checkUserEmailPassword(credentials!.email, credentials!.password);
       }
     }),
     GithubProvider({
@@ -22,6 +22,11 @@ export const authOptions: NextAuthOptions = {
     }),
     // ...add more providers here
   ],
+  // Custom pages
+  pages:{
+    signIn:'/auth/sign-in',
+    newUser: '/auth/sign-up'
+  },
   // Callbacks
   callbacks: {
     async jwt({ token, account, user }) {
@@ -30,7 +35,7 @@ export const authOptions: NextAuthOptions = {
 
         switch (account.type) {
           case 'oauth':
-
+            token.user = await dbUsers.oAuthToDBUser(user?.email || '', user?.name || '');
             break;
 
           case 'credentials':

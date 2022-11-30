@@ -1,4 +1,5 @@
 import NextLink from 'next/link';
+import { GetServerSideProps } from 'next';
 import { Button, Chip, Grid, Link, TextField, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { NextPage } from 'next';
@@ -10,6 +11,7 @@ import { ErrorOutline } from '@mui/icons-material';
 import { useState, useContext } from 'react';
 import { AuthContext } from '../../context';
 import { useRouter } from 'next/router';
+import { getSession, signIn } from 'next-auth/react';
 
 type FormData = {
     email: string,
@@ -27,17 +29,19 @@ const SignInPage: NextPage = () => {
     const handleLoginUser = async ({ email, password }: FormData) => {
         setShowError(false);
 
-        const isValidLogin = await loginUser(email, password);
+        // const isValidLogin = await loginUser(email, password);
 
-        if (!isValidLogin) {
-            setShowError(true);
-            setTimeout(() => setShowError(false), 5000);
-            return;
-        }
+        // if (!isValidLogin) {
+        //     setShowError(true);
+        //     setTimeout(() => setShowError(false), 5000);
+        //     return;
+        // }
 
-        // So that it does not return to the previous page we use replace
-        const destination = router.query.p?.toString() || '/';
-        router.replace(destination);
+        // // So that it does not return to the previous page we use replace
+        // const destination = router.query.p?.toString() || '/';
+        // router.replace(destination);
+
+        await signIn('credentials', { email, password });
     }
 
     return (
@@ -115,6 +119,29 @@ const SignInPage: NextPage = () => {
             </form>
         </AuthLayout>
     );
+}
+
+// You should use getServerSideProps when:
+// - Only if you need to pre-render a page whose data must be fetched at request time
+export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
+    const session = await getSession({ req });
+
+    const { p = '/' } = query;
+
+    if (session) {
+        return {
+            redirect: {
+                destination: p.toString(),
+                permanent: false
+            }
+        }
+    }
+
+    return {
+        props: {
+
+        }
+    }
 }
 
 export default SignInPage;
