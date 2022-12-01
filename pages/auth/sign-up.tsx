@@ -1,4 +1,5 @@
 import NextLink from 'next/link';
+import { GetServerSideProps } from 'next';
 import { Button, Chip, Grid, Link, TextField, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { NextPage } from 'next';
@@ -10,6 +11,7 @@ import { tesloApi } from '../../api';
 import { ErrorOutline } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { AuthContext } from '../../context';
+import { getSession, signIn } from 'next-auth/react';
 
 type FormData = {
     name: string;
@@ -39,8 +41,10 @@ const SignUpPage: NextPage = () => {
         }
 
         // So that it does not return to the previous page we use replace
-        const destination = router.query.p?.toString() || '/';
-        router.replace(destination);
+        // const destination = router.query.p?.toString() || '/';
+        // router.replace(destination);
+
+        await signIn('credentials', { email, password });
     }
 
     return (
@@ -134,6 +138,29 @@ const SignUpPage: NextPage = () => {
             </form>
         </AuthLayout>
     );
+}
+
+// You should use getServerSideProps when:
+// - Only if you need to pre-render a page whose data must be fetched at request time
+export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
+    const session = await getSession({ req });
+
+    const { p = '/' } = query;
+
+    if (session) {
+        return {
+            redirect: {
+                destination: p.toString(),
+                permanent: false
+            }
+        }
+    }
+
+    return {
+        props: {
+
+        }
+    }
 }
 
 export default SignUpPage;

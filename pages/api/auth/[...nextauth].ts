@@ -23,9 +23,14 @@ export const authOptions: NextAuthOptions = {
     // ...add more providers here
   ],
   // Custom pages
-  pages:{
-    signIn:'/auth/sign-in',
+  pages: {
+    signIn: '/auth/sign-in',
     newUser: '/auth/sign-up'
+  },
+  session: {
+    maxAge: 2592000, // 30d
+    strategy: 'jwt',
+    updateAge: 86400, // Cada día
   },
   // Callbacks
   callbacks: {
