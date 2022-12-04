@@ -1,5 +1,5 @@
 import { useEffect, useReducer } from "react";
-import { ICartProduct } from "../../interfaces";
+import { ICartProduct, IShippingAddress } from "../../interfaces";
 import { CartContext, cartReducer } from "./";
 import Cookies from "js-cookie";
 
@@ -15,17 +15,6 @@ export interface ICartState {
     tax: number;
     total: number;
     shippingAddress?: IShippingAddress;
-}
-
-export interface IShippingAddress {
-    firstName: string;
-    lastName: string;
-    address: string;
-    address2?: string;
-    zip: string;
-    city: string;
-    country: string;
-    phone: string;
 }
 
 const CART_INITIAL_STATE: ICartState = {
