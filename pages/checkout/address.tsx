@@ -154,6 +154,7 @@ const AddressPage: NextPage = () => {
                             // select
                             variant='filled'
                             label='Country'
+                            fullWidth
                             // defaultValue={Cookies.get('country') || countries[0].code}
                             {
                             ...register('country', {

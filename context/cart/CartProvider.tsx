@@ -1,8 +1,8 @@
 import { useEffect, useReducer } from "react";
-import { ICartProduct, IShippingAddress } from "../../interfaces";
+import { ICartProduct, IOrder, IShippingAddress } from "../../interfaces";
 import { CartContext, cartReducer } from "./";
 import Cookies from "js-cookie";
-
+import tesloApi from '../../api/teslo-api';
 interface ICartProviderProps {
     children?: React.ReactNode;
 }
@@ -113,8 +113,31 @@ export const CartProvider: React.FC<ICartProviderProps> = ({ children }) => {
         Cookies.set('city', address.city);
         Cookies.set('country', address.country);
         Cookies.set('phone', address.phone);
-        
+
         dispatch({ type: '[Cart] - Update Address', payload: address });
+    }
+
+    const createOrder = async () => {
+        if (!state.shippingAddress) {
+            throw new Error('There is no delivery address');
+        }
+
+        const body: IOrder = {
+            orderItems: state.cart.map(p => ({ ...p, size: p.size! })),
+            shippingAddress: state.shippingAddress,
+            numberOfItems: state.numberOfItems,
+            subTotal: state.subTotal,
+            tax: state.tax,
+            total: state.total,
+            isPaid: false
+        }
+
+        try {
+            const { data } = await tesloApi.post('/orders', body);
+            console.log('data', data)
+        } catch (error) {
+            console.log('error in createOrder', error);
+        }
     }
 
     return (
@@ -125,7 +148,10 @@ export const CartProvider: React.FC<ICartProviderProps> = ({ children }) => {
             addProductToCart,
             updateCartQuantity,
             deleteCartProduct,
-            updateAddress
+            updateAddress,
+
+            // Orders
+            createOrder
         }}
         >
             {children}

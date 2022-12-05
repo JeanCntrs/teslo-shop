@@ -11,13 +11,17 @@ import Cookies from 'js-cookie';
 
 const SummaryPage: NextPage = () => {
     const router = useRouter();
-    const { shippingAddress, numberOfItems } = useContext(CartContext);
+    const { shippingAddress, numberOfItems, createOrder } = useContext(CartContext);
 
     useEffect(() => {
         if (!Cookies.get('firstName')) {
             router.push('/checkout/address');
         }
     }, [router])
+
+    const handleCreateOrder = () => {
+        createOrder();
+    }
 
     if (!shippingAddress) {
         return <></>;
@@ -68,7 +72,12 @@ const SummaryPage: NextPage = () => {
                             <OrderSummary />
 
                             <Box sx={{ mt: 3 }}>
-                                <Button color='secondary' className='circular-btn' fullWidth>
+                                <Button
+                                    color='secondary'
+                                    className='circular-btn'
+                                    fullWidth
+                                    onClick={handleCreateOrder}
+                                >
                                     Confirm order
                                 </Button>
                             </Box>
