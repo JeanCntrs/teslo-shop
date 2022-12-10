@@ -135,6 +135,8 @@ export const CartProvider: React.FC<ICartProviderProps> = ({ children }) => {
 
         try {
             const { data } = await tesloApi.post('/orders', body);
+
+            dispatch({type: '[Cart] - Order Conplete'});
             
             return {
                 hasError: false,
