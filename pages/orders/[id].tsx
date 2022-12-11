@@ -12,74 +12,72 @@ interface OrderPageProps {
     order: IOrder;
 }
 
-const OrderPage: NextPage<OrderPageProps> = ({order}) => {
+const OrderPage: NextPage<OrderPageProps> = ({ order }) => {
+    const { shippingAddress } = order;
+
     return (
         <ShopLayout title='Order summary' pageDescription='Order summary'>
-            <Typography variant='h1' component='h1'>Order: abc123</Typography>
+            <Typography variant='h1' component='h1'>Order: {order._id}</Typography>
 
-            {/* <Chip
-                sx={{ my: 2 }}
-                label='Pending payment'
-                variant='outlined'
-                color='error'
-                icon={<CreditCardOffOutlined />}
-            /> */}
-
-            <Chip
-                sx={{ my: 2 }}
-                label='Paid order'
-                variant='outlined'
-                color='success'
-                icon={<CreditScoreOutlined />}
-            />
+            {
+                order.isPaid
+                    ? <Chip
+                        sx={{ my: 2 }}
+                        label='Paid order'
+                        variant='outlined'
+                        color='success'
+                        icon={<CreditScoreOutlined />}
+                    />
+                    : <Chip
+                        sx={{ my: 2 }}
+                        label='Pending payment'
+                        variant='outlined'
+                        color='error'
+                        icon={<CreditCardOffOutlined />}
+                    />
+            }
 
             <Grid container>
                 <Grid item xs={12} sm={7}>
-                    <CartList />
+                    <CartList products={order.orderItems} />
                 </Grid>
                 <Grid item xs={12} sm={5}>
                     <Card className='summary-card'>
                         <CardContent>
-                            <Typography>Summary (3 products)</Typography>
+                            <Typography>Summary ({order.numberOfItems} {order.numberOfItems > 1 ? 'products' : 'product'})</Typography>
                             <Divider sx={{ my: 1 }} />
-
-                            <Box display='flex' justifyContent='end'>
-                                <NextLink href='/checkout/address' passHref>
-                                    <Link underline='always'>
-                                        Edit
-                                    </Link>
-                                </NextLink>
-                            </Box>
 
                             <Typography variant='subtitle1'>Delivery address</Typography>
-                            <Typography>info line</Typography>
-                            <Typography>info line</Typography>
-                            <Typography>info line</Typography>
-                            <Typography>info line</Typography>
-                            <Typography>info line</Typography>
+                            <Typography>{shippingAddress.firstName} {shippingAddress.lastName}</Typography>
+                            <Typography>{shippingAddress.address} {shippingAddress.address2 ? `, ${shippingAddress.address2}` : ''}</Typography>
+                            <Typography>{shippingAddress.city} {shippingAddress.zip}</Typography>
+                            <Typography>{shippingAddress.country}</Typography>
+                            <Typography>{shippingAddress.phone}</Typography>
 
                             <Divider sx={{ my: 1 }} />
 
-                            <Box display='flex' justifyContent='end'>
-                                <NextLink href='/cart' passHref>
-                                    <Link underline='always'>
-                                        Edit
-                                    </Link>
-                                </NextLink>
-                            </Box>
+                            <OrderSummary
+                                orderValues={{
+                                    numberOfItems: order.numberOfItems,
+                                    subTotal: order.subTotal,
+                                    total: order.total,
+                                    tax: order.tax
+                                }}
+                            />
 
-                            <OrderSummary />
-
-                            <Box sx={{ mt: 3 }}>
-                                <h1>Pay</h1>
-
-                                <Chip
-                                    sx={{ my: 2 }}
-                                    label='Paid order'
-                                    variant='outlined'
-                                    color='success'
-                                    icon={<CreditScoreOutlined />}
-                                />
+                            <Box sx={{ mt: 3 }} display='flex' flexDirection='column'>
+                                {
+                                    order.isPaid
+                                        ? <Chip
+                                            sx={{ my: 2 }}
+                                            label='Paid order'
+                                            variant='outlined'
+                                            color='success'
+                                            icon={<CreditScoreOutlined />}
+                                        />
+                                        :
+                                        <h1>Pay</h1>
+                                }
                             </Box>
                         </CardContent>
                     </Card>
@@ -105,7 +103,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
         }
     }
 
-    const order = await dbOrders.getProductById(id.toString());
+    const order = await dbOrders.getOrderById(id.toString());
 
     if (!order) {
         return {
