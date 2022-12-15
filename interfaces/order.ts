@@ -1,4 +1,4 @@
-import { IUser,ISize } from ".";
+import { IUser, ISize } from ".";
 
 export interface IOrder {
     _id?: string;
@@ -12,6 +12,7 @@ export interface IOrder {
     total: number;
     isPaid: boolean;
     paidAt?: string;
+    transactionId?: string;
 }
 
 export interface IOrderItem {

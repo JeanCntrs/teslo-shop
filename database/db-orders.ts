@@ -9,7 +9,7 @@ export const getOrderById = async (id: string): Promise<IOrder | null> => {
     }
 
     await db.connect();
-    const order = await Order.findById({ id }).lean();
+    const order = await Order.findById({ _id: id }).lean();
     await db.disconnect();
 
     if (!order) {

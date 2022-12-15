@@ -7,6 +7,7 @@ import { CreditCardOffOutlined, CreditScoreOutlined } from "@mui/icons-material"
 import { getSession } from "next-auth/react";
 import { dbOrders } from "../../database";
 import { IOrder } from '../../interfaces/order';
+import { PayPalButtons } from '@paypal/react-paypal-js';
 
 interface OrderPageProps {
     order: IOrder;
@@ -76,7 +77,7 @@ const OrderPage: NextPage<OrderPageProps> = ({ order }) => {
                                             icon={<CreditScoreOutlined />}
                                         />
                                         :
-                                        <h1>Pay</h1>
+                                        <PayPalButtons />
                                 }
                             </Box>
                         </CardContent>
