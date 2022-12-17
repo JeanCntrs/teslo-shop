@@ -77,7 +77,26 @@ const OrderPage: NextPage<OrderPageProps> = ({ order }) => {
                                             icon={<CreditScoreOutlined />}
                                         />
                                         :
-                                        <PayPalButtons />
+                                        <PayPalButtons
+                                            createOrder={(data, actions) => {
+                                                return actions.order.create({
+                                                    purchase_units: [
+                                                        {
+                                                            amount: {
+                                                                value: `${order.total}`,
+                                                            },
+                                                        },
+                                                    ],
+                                                });
+                                            }}
+                                            onApprove={(data, actions) => {
+                                                return actions.order!.capture().then((details) => {
+                                                    console.log('details', details);
+                                                    const name = details.payer.name!.given_name;
+                                                    alert(`Transaction completed by ${name}`);
+                                                });
+                                            }}
+                                        />
                                 }
                             </Box>
                         </CardContent>
