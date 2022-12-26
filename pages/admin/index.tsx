@@ -1,57 +1,93 @@
 import { AccessTimeOutlined, AttachMoneyOutlined, CancelPresentationOutlined, CategoryOutlined, CreditCardOffOutlined, DashboardOutlined, GroupOutlined, ProductionQuantityLimitsOutlined } from "@mui/icons-material";
-import { Grid } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import { SummaryTile } from "../../components/admin";
 import { AdminLayout } from "../../components/layouts";
+import useSWR from 'swr';
+import { DashboardSummaryResponse } from '../../interfaces/dashboard';
+import { useState, useEffect } from 'react';
 
 interface DashboardPageProps {
 
 }
 
 const DashboardPage: React.FC<DashboardPageProps> = () => {
+    const { data, error } = useSWR<DashboardSummaryResponse>('/api/admin/dashboard', {
+        refreshInterval: 30 * 1000 // 30 seconds
+    });
+
+    const [refreshIn, setRefreshIn] = useState(30);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setRefreshIn(refreshIn => refreshIn > 0 ? refreshIn - 1 : 30);
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [])
+
+    if (!error && !data) {
+        return <></>
+    }
+
+    if (error) {
+        console.log('error', error)
+        return <Typography>Error loading information</Typography>
+    }
+
+    const {
+        numberOfOrders,
+        paidOrders,
+        numberOfClients,
+        numberOfProducts,
+        productsWithNoInventory,
+        lowInventory,
+        notPaidOrders,
+    } = data!;
+
     return (
         <AdminLayout
             title='Dashboard'
-            subTitle='general statistics'
+            subTitle='General statistics'
             icon={<DashboardOutlined />}
         >
             <Grid container spacing={2}>
                 <SummaryTile
-                    title={1}
+                    title={numberOfOrders}
                     subtitle='Total orders'
                     icon={<CreditCardOffOutlined color='secondary' sx={{ fontsize: 40 }} />}
                 />
                 <SummaryTile
-                    title={2}
+                    title={paidOrders}
                     subtitle='Paid orders'
                     icon={<AttachMoneyOutlined color='success' sx={{ fontsize: 40 }} />}
                 />
                 <SummaryTile
-                    title={3}
+                    title={notPaidOrders}
                     subtitle='Pending orders'
                     icon={<CreditCardOffOutlined color='error' sx={{ fontsize: 40 }} />}
                 />
                 <SummaryTile
-                    title={4}
+                    title={numberOfClients}
                     subtitle='Clients'
                     icon={<GroupOutlined color='primary' sx={{ fontsize: 40 }} />}
                 />
                 <SummaryTile
-                    title={5}
+                    title={numberOfProducts}
                     subtitle='Products'
                     icon={<CategoryOutlined color='warning' sx={{ fontsize: 40 }} />}
                 />
                 <SummaryTile
-                    title={6}
+                    title={productsWithNoInventory}
                     subtitle='Out of Stock'
                     icon={<CancelPresentationOutlined color='error' sx={{ fontsize: 40 }} />}
                 />
                 <SummaryTile
-                    title={7}
+                    title={lowInventory}
                     subtitle='Low inventory'
                     icon={<ProductionQuantityLimitsOutlined color='warning' sx={{ fontsize: 40 }} />}
                 />
                 <SummaryTile
-                    title={8}
+                    title={refreshIn}
                     subtitle='Update in:'
                     icon={<AccessTimeOutlined color='secondary' sx={{ fontsize: 40 }} />}
                 />
