@@ -27,7 +27,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, subTi
                 <Box display='flex' flexDirection='column'>
                     <Typography variant='h1' component='h1'>
                         {icon}
-                        {title}
+                        {' '} {title}
                     </Typography>
                     <Typography variant='h2' sx={{ mb: 1 }}>{subTitle}</Typography>
                 </Box>

@@ -6,17 +6,36 @@ import { AdminLayout } from "../../components/layouts";
 import useSWR from 'swr';
 import { IUser } from "../../interfaces";
 import { tesloApi } from "../../api";
+import { useState, useEffect } from 'react';
 
 const UsersPage: NextPage = () => {
     const { data, error } = useSWR<IUser[]>('/api/admin/users');
+    const [users, setUsers] = useState<IUser[]>([]);
+
+    useEffect(() => {
+        if (data) {
+            setUsers(data);
+        }
+    }, [data])
+
 
     if (!data && !error) return (<></>);
 
     const handleRoleUpdated = async (userId: string, newRole: string) => {
+        const previousUsers = users.map(user => ({...user}));
+        const updatedUsers = users.map(user => ({
+            ...user,
+            role: userId === user._id ? newRole : user.role
+        }))
+
+        setUsers(updatedUsers);
+
         try {
             await tesloApi.put('/admin/users', { userId, role: newRole });
         } catch (error) {
             console.log('error in handleRoleUpdated', error);
+
+            setUsers(previousUsers);
         }
     }
 
@@ -45,7 +64,7 @@ const UsersPage: NextPage = () => {
         }
     ];
 
-    const rows = data!.map(user => ({
+    const rows = users.map(user => ({
         id: user._id,
         email: user.email,
         name: user.name,
