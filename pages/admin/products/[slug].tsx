@@ -6,6 +6,7 @@ import { DriveFileRenameOutline, SaveOutlined, UploadOutlined } from '@mui/icons
 import { dbProducts } from '../../../database';
 import { Box, Button, capitalize, Card, CardActions, CardMedia, Checkbox, Chip, Divider, FormControl, FormControlLabel, FormGroup, FormLabel, Grid, ListItem, Paper, Radio, RadioGroup, TextField } from '@mui/material';
 import { useForm } from 'react-hook-form';
+import { IType } from '../../../interfaces/products';
 
 
 const validTypes = ['shirts', 'pants', 'hoodies', 'hats']
@@ -31,7 +32,7 @@ interface Props {
 }
 
 const ProductAdminPage: FC<Props> = ({ product }) => {
-    const { register, handleSubmit, formState: { errors } } = useForm({
+    const { register, handleSubmit, formState: { errors }, getValues, setValue } = useForm({
         defaultValues: product
     })
 
@@ -125,8 +126,8 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
                             <FormLabel>Tipo</FormLabel>
                             <RadioGroup
                                 row
-                            // value={ status }
-                            // onChange={ onStatusChanged }
+                                value={getValues('type')}
+                                onChange={({ target }) => setValue('type', target.value as any, { shouldValidate: true })}
                             >
                                 {
                                     validTypes.map(option => (
@@ -145,8 +146,8 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
                             <FormLabel>Género</FormLabel>
                             <RadioGroup
                                 row
-                            // value={ status }
-                            // onChange={ onStatusChanged }
+                                value={getValues('gender')}
+                                onChange={({ target }) => setValue('gender', target.value as any, { shouldValidate: true })}
                             >
                                 {
                                     validGender.map(option => (
