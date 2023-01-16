@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import { GetServerSideProps } from 'next'
 import { AdminLayout } from '../../../components/layouts'
 import { IProduct } from '../../../interfaces';
@@ -7,6 +7,7 @@ import { dbProducts } from '../../../database';
 import { Box, Button, capitalize, Card, CardActions, CardMedia, Checkbox, Chip, Divider, FormControl, FormControlLabel, FormGroup, FormLabel, Grid, ListItem, Paper, Radio, RadioGroup, TextField } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { IType } from '../../../interfaces/products';
+import { useEffect } from 'react';
 
 
 const validTypes = ['shirts', 'pants', 'hoodies', 'hats']
@@ -32,12 +33,27 @@ interface Props {
 }
 
 const ProductAdminPage: FC<Props> = ({ product }) => {
-    const { register, handleSubmit, formState: { errors }, getValues, setValue } = useForm({
+    const [newTagValue, setNewTagValue] = useState('');
+
+    const { register, handleSubmit, formState: { errors }, getValues, setValue, watch } = useForm({
         defaultValues: product
     })
 
-    const onDeleteTag = (tag: string) => {
+    const handleNewTage = () => {
+        const newTag = newTagValue.trim().toLowerCase();
+        setNewTagValue('');
+        const currentTags = getValues('tags');
 
+        if (currentTags.includes(newTag)) {
+            return;
+        }
+
+        currentTags.push(newTag);
+    }
+
+    const handleDeleteTag = (tag: string) => {
+        const updatedTags = getValues('tags').filter(t => t !== tag)
+        setValue('tags', updatedTags, { shouldValidate: true });
     }
 
     const handleFormSubmit = (form: FormData) => {
@@ -53,6 +69,21 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
 
         setValue('sizes', [...currentSizes, size as any], { shouldValidate: true });
     }
+
+    useEffect(() => {
+        const subscription = watch((value, { name, type }) => {
+            if (name === 'title') {
+                const newSlug = value.title?.trim().replaceAll(' ', '_').replaceAll("'", '').toLowerCase() || '';
+
+                setValue('slug', newSlug)
+            }
+        })
+
+        return () => {
+            subscription.unsubscribe();
+        }
+    }, [watch, setValue])
+
 
     return (
         <AdminLayout
@@ -209,6 +240,8 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
                             fullWidth
                             sx={{ mb: 1 }}
                             helperText="Presiona [spacebar] para agregar"
+                            onChange={({ target }) => setNewTagValue(target.value)}
+                            onKeyUp={({ code }) => code === 'Space' ? handleNewTage() : undefined}
                         />
 
                         <Box sx={{
@@ -220,13 +253,13 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
                         }}
                             component="ul">
                             {
-                                product.tags.map((tag) => {
+                                getValues('tags').map((tag) => {
 
                                     return (
                                         <Chip
                                             key={tag}
                                             label={tag}
-                                            onDelete={() => onDeleteTag(tag)}
+                                            onDelete={() => handleDeleteTag(tag)}
                                             color="primary"
                                             size='small'
                                             sx={{ ml: 1, mt: 1 }}
