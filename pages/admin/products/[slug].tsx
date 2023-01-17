@@ -8,6 +8,7 @@ import { Box, Button, capitalize, Card, CardActions, CardMedia, Checkbox, Chip, 
 import { useForm } from 'react-hook-form';
 import { IType } from '../../../interfaces/products';
 import { useEffect } from 'react';
+import tesloApi from '../../../api/teslo-api';
 
 
 const validTypes = ['shirts', 'pants', 'hoodies', 'hats']
@@ -34,6 +35,7 @@ interface Props {
 
 const ProductAdminPage: FC<Props> = ({ product }) => {
     const [newTagValue, setNewTagValue] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
 
     const { register, handleSubmit, formState: { errors }, getValues, setValue, watch } = useForm({
         defaultValues: product
@@ -56,8 +58,27 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
         setValue('tags', updatedTags, { shouldValidate: true });
     }
 
-    const handleFormSubmit = (form: FormData) => {
-        console.log('form', form);
+    const handleFormSubmit = async (form: FormData) => {
+        if (form.images.length < 2) return alert('Min 2 images')
+
+        setIsSaving(true);
+
+        try {
+            const { data } = await tesloApi({
+                url: '/admin/products',
+                method: 'PUT',
+                data: form
+            })
+
+            if (!form._id) {
+
+            } else {
+                setIsSaving(false);
+            }
+        } catch (error) {
+            console.log('error in handleFormSubmit: ', error);
+            setIsSaving(false);
+        }
     }
 
     const handleChangeSize = (size: string) => {
@@ -98,6 +119,7 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
                         startIcon={<SaveOutlined />}
                         sx={{ width: '150px' }}
                         type="submit"
+                        disabled={isSaving}
                     >
                         Guardar
                     </Button>
