@@ -18,7 +18,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse<Data>)
             return updateProduc(req, res);
 
         case 'POST':
-            return getProducts(req, res);
+            return createProduct(req, res);
 
         default:
             return res.status(400).json({ message: 'Bad request' });
@@ -61,6 +61,36 @@ const updateProduc = async (req: NextApiRequest, res: NextApiResponse<Data>) => 
         await db.disconnect();
 
         return res.status(200).json(product);
+    } catch (error) {
+        await db.disconnect();
+
+        return res.status(400).json({ message: 'Server error' });
+    }
+}
+
+const createProduct = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
+    const { images = [] } = req.body as IProduct;
+
+    if (images.length < 2) {
+        return res.status(400).json({ message: 'Invalid images, required min 2' });
+    }
+
+    try {
+        await db.connect();
+
+        const productFound = await Product.findOne({slug:req.body.slug});
+
+        if (productFound) {
+            await db.disconnect();
+            return res.status(400).json({ message: 'Slug exists' });
+        }
+
+        const product = new Product(req.body);
+        await product.save();
+
+        await db.disconnect();
+
+        return res.status(201).json(product);
     } catch (error) {
         await db.disconnect();
 
