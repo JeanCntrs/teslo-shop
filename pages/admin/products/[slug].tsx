@@ -94,12 +94,15 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
         setValue('sizes', [...currentSizes, size as any], { shouldValidate: true });
     }
 
-    const handleFilesSelected = ({ target }: ChangeEvent<HTMLInputElement>) => {
+    const handleFilesSelected = async ({ target }: ChangeEvent<HTMLInputElement>) => {
         if (!target.files || target.files.length === 0) return;
 
         try {
             for (const file of target.files) {
                 const formData = new FormData();
+                formData.append('file', file);
+
+                const { data } = await tesloApi.post<{ message: string }>('/admin/upload', formData)
             }
         } catch (error) {
             console.log('eeerror in handleFilesSelected: ', error);
