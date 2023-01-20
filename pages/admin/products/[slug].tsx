@@ -1,14 +1,15 @@
-import React, { FC, useState } from 'react'
+import React, { ChangeEvent, FC, useRef, useState } from 'react'
 import { GetServerSideProps } from 'next'
 import { AdminLayout } from '../../../components/layouts'
 import { IProduct } from '../../../interfaces';
 import { DriveFileRenameOutline, SaveOutlined, UploadOutlined } from '@mui/icons-material';
 import { dbProducts } from '../../../database';
-import { Box, Button, capitalize, Card, CardActions, CardMedia, Checkbox, Chip, Divider, FormControl, FormControlLabel, FormGroup, FormLabel, Grid, ListItem, Paper, Radio, RadioGroup, TextField } from '@mui/material';
+import { Box, Button, capitalize, Card, CardActions, CardMedia, Checkbox, Chip, Divider, FormControl, FormControlLabel, FormGroup, FormLabel, Grid, Input, ListItem, Paper, Radio, RadioGroup, TextField } from '@mui/material';
 import { useForm } from 'react-hook-form';
-import { IType } from '../../../interfaces/products';
 import { useEffect } from 'react';
 import tesloApi from '../../../api/teslo-api';
+import { Product } from '../../../models';
+import { useRouter } from 'next/router';
 
 
 const validTypes = ['shirts', 'pants', 'hoodies', 'hats']
@@ -34,6 +35,8 @@ interface Props {
 }
 
 const ProductAdminPage: FC<Props> = ({ product }) => {
+    const router = useRouter();
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [newTagValue, setNewTagValue] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
@@ -66,12 +69,12 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
         try {
             const { data } = await tesloApi({
                 url: '/admin/products',
-                method: 'PUT',
+                method: form._id ? 'PUT' : 'POST',
                 data: form
             })
 
             if (!form._id) {
-
+                router.replace(`/admin/products/${form.slug}`);
             } else {
                 setIsSaving(false);
             }
@@ -89,6 +92,18 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
         }
 
         setValue('sizes', [...currentSizes, size as any], { shouldValidate: true });
+    }
+
+    const handleFilesSelected = ({ target }: ChangeEvent<HTMLInputElement>) => {
+        if (!target.files || target.files.length === 0) return;
+
+        try {
+            for (const file of target.files) {
+                const formData = new FormData();
+            }
+        } catch (error) {
+            console.log('eeerror in handleFilesSelected: ', error);
+        }
     }
 
     useEffect(() => {
@@ -299,9 +314,18 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
                                 fullWidth
                                 startIcon={<UploadOutlined />}
                                 sx={{ mb: 3 }}
+                                onClick={() => fileInputRef.current?.click()}
                             >
                                 Cargar imagen
                             </Button>
+                            <input
+                                ref={fileInputRef}
+                                type='file'
+                                multiple
+                                accept='image/png, image/gif, image/jpeg'
+                                style={{ display: 'none' }}
+                                onChange={handleFilesSelected}
+                            />
 
                             <Chip
                                 label="Es necesario al 2 imagenes"
@@ -346,10 +370,18 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
 
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
-
     const { slug = '' } = query;
 
-    const product = await dbProducts.getProductBySlug(slug.toString());
+    let product: IProduct | null;
+
+    if (slug === 'new') {
+        const tempProduct = JSON.parse(JSON.stringify(new Product()));
+        delete tempProduct._id;
+        tempProduct.images = ['img1.jpg', 'img2.jpg']
+        product = tempProduct;
+    } else {
+        product = await dbProducts.getProductBySlug(slug.toString());
+    }
 
     if (!product) {
         return {
